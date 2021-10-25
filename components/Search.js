@@ -1,9 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text,ScrollView , View } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import React,{useState, useEffect} from 'react'
 import { Button,Input } from 'react-native-elements';
 import instance from '../helpers/axios';
-import { ScrollView } from 'react-native';
 
 
 const Search = () => {
@@ -37,20 +36,18 @@ const Search = () => {
     }
 
     return (
-        <View>
-                <View style={styles.search}>
-                   <Text style={styles.text}>Search by Age :</Text>
-                    <Picker style={styles.input} selectedValue={age} onValueChange={(itemValue, itemIndex) => setAge(itemValue)} >
-                        
-                        <Picker.Item  label='Pick an age-range' value={null} />
-                        
-                        <Picker.Item label='0 - 29' value='0 - 29' />
-                        <Picker.Item label='30 - 59' value='30 - 59' />
-                        <Picker.Item label='60 - 89' value='60 - 89' />
-                        <Picker.Item label='90 and above' value='90 and above' />
-                    </Picker>
-                    <Button title="Search"  onPress={ageSearch}  />
-               </View>
+        <View style={{backgroundColor:'#3EB489',padding:5,borderRadius:5, width:'90%'}} >
+            <View style={styles.search}>
+                {/* <Text style={styles.text}>Search by Age :</Text> */}
+                <Picker style={[styles.input,{color:'red'}]} selectedValue={age} onValueChange={(itemValue, itemIndex) => setAge(itemValue)} >
+                    <Picker.Item  label='Search by Age' value={null} />
+                    <Picker.Item label='0 - 29' value='0 - 29' />
+                    <Picker.Item label='30 - 59' value='30 - 59' />
+                    <Picker.Item label='60 - 89' value='60 - 89' />
+                    <Picker.Item label='90 and above' value='90 and above' />
+                </Picker>
+                <Button title="Search"  onPress={ageSearch}  />
+            </View>
                 <View style={styles.search}>
                    <Text style={styles.text}>Search by BMI :</Text>
                     <Picker style={styles.input} selectedValue={bmi} onValueChange={(itemValue, itemIndex) => setBmi(itemValue)} >
@@ -116,17 +113,15 @@ const styles = StyleSheet.create({
       margin:12,
       padding:5,
       borderWidth:1,
-      borderColor:'grey'
+      borderColor:'black'
 
   },
   search: {
       flexDirection:'row',
       justifyContent:'space-between',
       alignItems:'center',
-      marginLeft:30,
-    //   paddingLeft:15,
-      
-      width:'70%'
+    //   marginLeft:30,
+     
 
   }
 

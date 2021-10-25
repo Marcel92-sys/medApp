@@ -1,23 +1,22 @@
-import { createStore,compose, combineReducers, applyMiddleware } from "redux";
-import  thunk from 'redux-thunk';
-import { workersListReducer, workersRegisterReducer,userLoginReducer } from "./reducers/userReducer";
+import {configureStore} from '@reduxjs/toolkit'
+import { isAuthenticated } from '../helpers/authHelpers'
+import authReducer from './auth/authSlice'
+import workersListReducer from './hWorkers/workersSlice'
+import patientsListReducer from './patients/patientsListSlice'
 
+const intialState = {
+    authState: { userInfo : isAuthenticated() ? isAuthenticated : null}
+};
 
-const initialState = {
-    userSignin: {
-        user: localStorage.getItem("userInfo") ?
-            JSON.parse(localStorage.getItem('userInfo')) : null
-    }
-}
-const rootReducer = combineReducers({
-   workersList: workersListReducer,
-   workerRegister: workersRegisterReducer,
-   userSignin: userLoginReducer
+const store = configureStore({
+    reducer: {
+        patientsList: patientsListReducer,
+        workersList: workersListReducer,
+        authState: authReducer
+
+    },
+    intialState
 })
 
 
-
-const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-
-
-export const store = createStore(rootReducer,initialState, applyMiddleware(thunk))
+export default store

@@ -1,57 +1,42 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet,Dimensions, Text, View } from 'react-native'
-
-const screenWidth = Dimensions.get("window").width;
 import { PieChart } from 'react-native-chart-kit';
 import instance from '../helpers/axios';
 
+const screenWidth = Dimensions.get("window").width;
 
-const Charts = () => {
-    const [males, setMales] = useState(0);
-    const [females, setFemales] = useState(0);
-    const [ageOne, setAgeOne] = useState(0);
-    const [ageTwo, setAgeTwo] = useState(0);    
-    const [ageThree, setAgeThree] = useState(0);    
-    const [ageFour, setAgeFour] = useState(0);
+const Charts = ({males, females, ageOne, ageTwo, ageThree, ageFour}) => {
 
 
     useEffect(() => {
 
-        const getMales = async() => {
-
-          const response =  await instance.get('/patients/search?gender=male')
-               
-               setMales(response.data.length)
-               
-            };
-        getMales();
 
         const getFemales = async() => {
           const response = await instance.get('/patients/search?gender=female')
-            setFemales(response.data.length)
+            // setFemales(response.data.length)
         }
             getFemales();
 
         const ageRangeOne = async() => {
             const res = await instance.get('/patients/search?age=0 - 29')
-            setAgeOne(res.data.length)
+            // setAgeOne(res.data.length)
         }
         ageRangeOne();
         const ageRangeTwo = async() => {
             const res = await instance.get('/patients/search?age=30 - 59')
-                setAgeTwo(res.data.length)
+                // setAgeTwo(res.data.length)
         }
         ageRangeTwo();
 
         const ageRangeThree = async() => {
             const res = await instance.get('/patients/search?age=60 - 89')
-            setAgeThree(res.data.length)
+            // setAgeThree(res.data.length)
         }
         ageRangeThree();
 
         const ageRangeFour = async() => {
             const res = await instance.get('/patients/search?age=0 - 29')
-            setAgeFour(res.data.length)
+            // setAgeFour(res.data.length)
         }
         ageRangeFour();
 
@@ -88,7 +73,7 @@ const Charts = () => {
                 {name:"Ages: 0 - 29",size:ageOne,color:"red"},
                 {name:" Ages: 30 - 59",size:ageTwo,color:"blue"},
                 {name: "Ages: 60 - 89", size:ageThree,color:"yellow"},
-                {name:'Ages: 90 and above', size:ageFour, color:"light-green"}
+                {name:'Ages: 90 and above', size:ageFour, color:"green"}
           ]
        ];
 

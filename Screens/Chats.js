@@ -1,106 +1,106 @@
 // import { NavigationContainer } from '@react-navigation/native';
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useLayoutEffect, useState} from 'react'
 import { TouchableOpacity } from 'react-native';
-import { FlatList } from 'react-native';
 import { ScrollView } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux';
-import { listWorkers } from '../redux/actions/userActions';
+import UserListItem from '../components/UserListItem';
+// import { isAuthenticated } from '../helpers/authHelpers';
+import instance from '../helpers/axios';
 const io = require('socket.io-client');
 // const socket = io()
 
 const SERVER = "http://localhost:5700"
 
-
 const Chats = ({navigation}) => {
 
-    const [workerList, setWorkerList] = useState(true)
-    const dispatch = useDispatch();
-    const listOfWorkers = useSelector(state => state.workersList)
-    const {workers, error, loading} = listOfWorkers;
+    const [workerList, setWorkerList] = useState([])
+    const [patientsList, setPatientsList] = useState([])
 
+
+    // getting user from reduxStore 
+    const loginUser = useSelector((state )=> state.authState)
+    let {status, userInfo, error} = loginUser
+    
+    // getting user from localStorage
+//    const user = isAuthenticated()
+//      useLayoutEffect(() => {
+//          const jwt = isAuthenticated().then((value) => {
+
+//              if (value?.token ) {
+//                  navigation.replace('Main')
+//                 } 
+//             }
+//             ) 
+
+//     }, [])
 
     useEffect(() => {
-        dispatch(listWorkers())
-        setWorkerList(workers)
-        console.log(workerList)
+       const getWorkers = async() => {
+           const res = await instance.get('/workers/');
+           setWorkerList(res.data)
+           console.log(workerList)
+       }
+        getWorkers();
 
-        const socket = io(SERVER)
-        socket.emit('firstEvent', "Just texting")
+    //    listing patients
+        const getPatients = async() => {
+           const res = await instance.get('/patients/');
+           setPatientsList(res.data)
+       }
+        getPatients();
     }, [])
 
-    const handleToChat = () => {
-        navigation.navigate("Chat")
+    const enterChat = (_id, name,surname) => {
+        navigation.navigate("Chat", {_id, name, surname})
     }
 
     return (
         <View>
+            { (!userInfo?.bmi )? (
+            <>
 
-            {/* {worker ? ( */}
-                <>
+                
+                <View>
+                    <Text>Patients :</Text>
+                    <ScrollView>
+                        {patientsList.map(({_id, name, surname}) => {
 
-                    
-                    <View>
-                        <Text>Patients :</Text>
-                        <ScrollView>
+                            <TouchableOpacity key={_id} onPress={handleToChat}>
 
+                                <UserListItem enterChat={enterChat} key={_id} name={name} surname={surname} id={_id}  />
+                            </TouchableOpacity>
+                        })}
                             
-                                    <TouchableOpacity onPress={handleToChat}>
-                                        <Text>{workers}</Text>
-                                    </TouchableOpacity>
-                              
+
+                    </ScrollView>
+
+                    <View style={{marginTop:20}}>
+                        <Text>HealthWorkers :</Text>
+                        <ScrollView>
+                            {workerList.map(({_id, name, surname }) => (
+                                <UserListItem enterChat={enterChat} key={id} name={name} surname={surname} id={id}  />
+                            ))}
+                            
 
                         </ScrollView>
-
-                        <View style={{marginTop:20}}>
-                            <Text>HealthWorkers :</Text>
-                            <ScrollView>
-
-                              
-                                {/* <FlatList 
-                                    data=
-                                    {[{key:1, name: "cardone"},{key:2, name: "cardone"},
-                                        {key:3, name: "cardone"},{key:4, name: "cardone"},
-                                        {key:5, name: "cardone"}, {key:6, name: "cardone"}]}
-                                        
-                                        renderItem={ ({item}) => 
-
-                                        <TouchableOpacity onPress={handleToChat}>
-                                            <Text>{item.name}</Text>
-                                        </TouchableOpacity>
-                                        
-                                        }
-                                /> */}
-
-                            </ScrollView>
-                        </View>
                     </View>
-                </>
-            
-            {/* ) : ( */}
-                            <View>
-                <Text>HealthWorkers :</Text>
-                <ScrollView>
+                </View>
+            </>
+        
+        ) : (
+        <View>
+            <Text>HealthWorkers :</Text>
+            <ScrollView>
+                {workerList.map(({_id, name, surname }) => (
+                <TouchableOpacity>
+                    <UserListItem enterChat={enterChat} key={_id} name={name} surname={surname} id={_id}  />
+                </TouchableOpacity>
+                ))}
+            </ScrollView>
+        </View>
 
-                    {/* <FlatList 
-                        data=
-                        {[{key:1, name: "cardone"},{key:2, name: "cardone"},
-                            {key:3, name: "cardone"},{key:4, name: "cardone"},
-                            {key:5, name: "cardone"}, {key:6, name: "cardone"}]}
-                            
-                            renderItem={ ({item}) => 
-
-                            <TouchableOpacity onPress={handleToChat}>
-                                <Text>{item.name}</Text>
-                            </TouchableOpacity>
-                            
-                            }
-                    /> */}
-
-                </ScrollView>
-            </View>
-
-            {/* )} */}
+        )}
         </View>
     )
 }

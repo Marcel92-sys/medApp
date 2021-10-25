@@ -1,13 +1,16 @@
 import { Picker } from '@react-native-picker/picker';
 import React,{useState, useEffect} from 'react'
-import { StyleSheet,TextInput, Text, View,KeyboardAvoidingView, Modal  } from 'react-native'
+import { StyleSheet,TextInput, Text, View,KeyboardAvoidingView,ScrollView, Modal  } from 'react-native'
 import { Button,Input } from 'react-native-elements';
+import { useDispatch, useSelector } from 'react-redux';
+import instance from '../helpers/axios';
 import socket from '../helpers/socket';
+import { getPatients } from '../redux/patients/patientsListSlice';
 
 const Encounter = ({navigation}) => {
-    
+    const [eFor, setEFor] = useState('Marcel')
     const [visitType, setVisitType] = useState('First Time Visit')
-    
+    const [eBy, setEBy] = useState('')
     const [height, setHeight] = useState('')
     const [weight, setWeight] = useState('')
     // const [bmi, setBmi] = useState(0)
@@ -20,32 +23,29 @@ const Encounter = ({navigation}) => {
 
    const [showModal, setShowModal] = useState(false)
 
+   const [listedPatients, setListedPatients] = useState([])
 
-   //  watching for bmi creation  
+   const dispatch = useDispatch();
+   const worker = useSelector(state => state.authState)
+   let {userInfo, loading, error} = worker;
 
-        useEffect(() => {
-            // setUsernameSelected(true)
-            // socket.auth = {name:"message"}
-            socket.connect();
-            // console.log("here's the entered message %s", message);
-            // socket.on("connect_error", (err) => {
-            //     if (err.message === "invalid name"){
-            //         setUsernameSelected(false);
-            //     }
-            // })
+   
+//    get all Patients
 
-
-        //   function destroyed() {
-        //     socket.off("connect_error")
-        //     }
-        }, [])
-
-
+useEffect(() => {
+    dispatch(getPatients())
+},[])
+      const patients = useSelector(state => state.patientsList)
+      let {patientsList} = patients
+    console.log("patientsList", patientsList)
     // handling saving of Encounter file
-    const handleSave = () => {
-        
-    }
+  
+    const handleSave = async (e) => {
+       e.preventDefault();
+    //    const res = await instance.patch(`/${user?._id}/encounter/${}`)
 
+      
+    }
     // generates a bmi
    const createBmi = (a, b) =>{
         if (!a && !b) {
@@ -56,30 +56,37 @@ const Encounter = ({navigation}) => {
 
     const  bmi =  createBmi(weight, height)
    
-    const handleRegister = async (e) => {
-       e.preventDefault();
-
-      
-    }
 
     const handleSend = () => {
+
+        return (
+            <>
+            </>
+        )
         setShowModal(true)
     }
 
 
     let encounter = {visitType, height, weight,bmi,temp,bp,rRate,complaints,diagnosis,treatPlan} 
-    const sendEncounter = () => {
-        
+    
+    const sendEncounter = () => {        
         socket.emit("send-encounter", encounter)
     }
-
    
     return (
-        <View style={styles.container}>
-            <Text style={{fontSize:30}}>Encounter Form</Text>
-             <KeyboardAvoidingView style={{padding: 10,width:'70%', borderColor:'grey', borderWidth:1.5}}>
+        <KeyboardAvoidingView style={styles.container}>
+            <Text style={{fontWeight:'bold', color:'#3EB489'}}>Encounter Form for <Text>{eFor}</Text></Text>
+             <ScrollView style={{padding: 10,width:'85%',backgroundColor: '#3EB489', borderRadius:5}}>
+                 <View>
+                    <Text style={styles.text}>Patient name</Text>
+                       <Picker style={styles.input} selectedValue={eFor} onValueChange={(itemValue, itemIndex) => setEFor(itemValue)} >
+                           <Picker.Item  label='Select a patient' value={null} />
+                            {patientsList.map((patient, i)=>
+                            <Picker.Item key={i} label={patient.name +" "+ patient.surname} value={patient.name +" "+ patient.surname} />
+                            )}
+                        </Picker>
+                </View>
                <View>
-
                     <Text style={styles.text}>Visit Type</Text>
                     <TextInput
                         style={styles.input}
@@ -88,11 +95,8 @@ const Encounter = ({navigation}) => {
                         onChangeText={(text) => setVisitType(text)}
                         value={visitType}
                     />
-                
-               </View>
-
+                </View>
                 <View>
-
                     <Text style={styles.text}>Height :</Text>
                     <TextInput
                         style={styles.input}
@@ -101,10 +105,8 @@ const Encounter = ({navigation}) => {
                         onChangeText={(text) => setHeight(text)}
                         value={height}
                     />  
-                
-               </View>
-
-               <View>
+                </View>
+                <View>
                    <Text style={styles.text}>Weight :</Text>
                     <TextInput
                         style={styles.input}
@@ -193,7 +195,7 @@ const Encounter = ({navigation}) => {
                <View>
                     <Text style={styles.text}>Treatment Plan :</Text>
                 
-                <TextInput
+                    <TextInput
                     multiline={true}
                     style={styles.textArea}
                     placeholder="Enter treatment Plan"
@@ -201,36 +203,24 @@ const Encounter = ({navigation}) => {
                     value={treatPlan}
                     />
                </View>
+               
+                 <View>
+                    <Text style={styles.text}>Encounter By: {userInfo?.name}</Text>
                 
-            </KeyboardAvoidingView>
-                <Modal
-                    animationType={'slide'}
-                    transparent={false}
-                    visible={showModal}
-                    onRequestClose={() => {
-                        console.log('Modal has been closed.');
-                    }}>
-                    {/*All views of Modal*/}
-                    {/*Animation can be slide, slide, none*/}
-                    <View style={styles.modal}>
-                        <Text style={styles.textModal}>Modal is open!</Text>
-                        <Button
-                        title="Click To Close Modal"
-                        onPress={() => {
-                            setShowModal(!showModal);
-                        }}
-                        />
-                    </View>
-                </Modal>
+                    
+               </View>
+              
+                <View style={{flexDirection:'row', marginTop:2, justifyContent:'space-around'}}>
+                <Button title='Save' onPress={handleSave} />
+                <Button title='Send' type={'outline'} onPress={handleSend} />
 
-            <View style={{flexDirection:'row', marginTop:2, justifyContent:'space-around'}}>
-            <Button title='Save' onPress={() => navigation.navigate('SignIn')} />
-            <Button title='Send' type={'outline'} onPress={handleSend} />
+                </View>
+            </ScrollView>
 
-            </View>
+               
 
             
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

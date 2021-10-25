@@ -1,5 +1,6 @@
+import axios from "axios"
 
-const baseUrl = "http://localhost:5700/v1"
+export const baseUrl = "http://192.168.43.83:5700/api/v1"
 
 const createWorker = async(user) => {
     try {
@@ -18,6 +19,24 @@ const createWorker = async(user) => {
     }
 }
 
+export const login = async(user) => {
+    try {
+        let response = await axios('', {
+            method: "POST",
+            headers: {
+                'Accept' : 'application/json',
+                "Content-Type": 'application/json'
+            },
+            body: JSON.stringify(user)
+        })
+        return await response.json()
+        
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 const getPatients = async(signal) => {
     try {
         let response = await fetch(baseUrl +'/patients', {
@@ -31,7 +50,21 @@ const getPatients = async(signal) => {
 
 }
 
-const getWorkers = async(signal) => {
+
+export const getPatient = async(params) => {
+    try {
+        let response = await fetch(baseUrl +'/patients/' + params.patId, {
+            method: 'GET',
+            // signal:signal
+        })
+        return await response.json()
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+export const getWorkers = async(signal) => {
     try {
         let response = await fetch(baseUrl +'/workers', {
             method: 'GET',
@@ -44,7 +77,21 @@ const getWorkers = async(signal) => {
 
 }
 
-const sortPatients = async(signal) => {
+
+export const getEncountersByMe = async(params) => {
+    try {
+        let response = await fetch(baseUrl +'/workers/' + params.wkId + "/encounters", {
+            method: 'GET',
+        })
+        return await response.json()
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+export const sortPatients = async(signal) => {
     try {
         let response = await fetch(baseUrl +'/patients', {
             method: 'GET',
@@ -56,3 +103,4 @@ const sortPatients = async(signal) => {
     }
 
 }
+
