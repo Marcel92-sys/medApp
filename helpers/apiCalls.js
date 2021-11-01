@@ -1,6 +1,8 @@
 import axios from "axios"
 
-export const baseUrl = "http://192.168.43.83:5700/api/v1"
+export const baseUrl = "https://medapp21.herokuapp.com/api/v1"
+
+// "http://192.168.43.83:5700/api/v1"
 
 const createWorker = async(user) => {
     try {

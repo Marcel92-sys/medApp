@@ -1,7 +1,8 @@
 import axios  from "axios";
 
 const instance = axios.create({
-    baseURL: "http://192.168.43.83:5700/api/v1"
+    baseURL: "https://medapp21.herokuapp.com/api/v1"
+    // "http://192.168.43.83:5700/api/v1"
 })
 
 
