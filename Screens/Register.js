@@ -17,8 +17,8 @@ const Register = ({navigation}) => {
     const [rePassword, setRePassword] = useState('')
     const [age, setAge] = useState('')
     const [gender, setGender] = useState('')
-    const [department, setDepartment] = useState('')
-    const [cadre, setCadre] = useState('')
+    const [department] = useState('Medicine')
+    const [cadre] = useState('Doctor')
 
     const dispatch = useDispatch()
     // const {workers, loading} = useSelector(state => state.workersList)
@@ -100,7 +100,7 @@ const handleSignUp = async() =>{
                         <Picker.Item label='female' value='female' />
                     </Picker>
                 </>
-                <Input
+                {/* <Input
                     style={{width:300}}
                     label = "Cadre"
                     placeholder="Enter Cadre"
@@ -112,9 +112,10 @@ const handleSignUp = async() =>{
                     label = "Department"
                     // style={{height: 40,borderColor:'black', borderWidth:0.5}}
                     placeholder="Enter department"
-                    onChangeText={(text) => setDepartment(text)}
+                    // onChangeText={(text) => setDepartment(text)}
                     value={department}
-                />
+                /> */}
+            <View style={{marginBottom:20, backgroundColor:"#3EB489"}}>
                 <Button containerStyle={styles.button} disabled={!surname || !password} title='Register' onPress={handleSignUp} />
             
                 <View style={{alignSelf:"center" ,marginTop:10}}>
@@ -127,6 +128,7 @@ const handleSignUp = async() =>{
                         </Link>
                     </Text>
                 </View>
+            </View>
             </KeyboardAvoidingView>
         </ScrollView>
     )
@@ -137,7 +139,7 @@ export default Register
 const styles = StyleSheet.create({
     container: {
     // flex: 1,
-    // backgroundColor: 'white',
+    // backgroundColor: '#3EB489',
     alignItems: 'center',
     marginHorizontal:10,
     justifyContent: 'center',

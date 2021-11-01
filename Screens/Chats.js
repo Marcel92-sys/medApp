@@ -5,48 +5,43 @@ import { ScrollView } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux';
 import UserListItem from '../components/UserListItem';
+import { isAuthenticated } from '../helpers/authHelpers';
 // import { isAuthenticated } from '../helpers/authHelpers';
 import instance from '../helpers/axios';
-const io = require('socket.io-client');
-// const socket = io()
+import socket from '../helpers/socket';
 
-const SERVER = "http://localhost:5700"
 
 const Chats = ({navigation}) => {
 
     const [workerList, setWorkerList] = useState([])
     const [patientsList, setPatientsList] = useState([])
 
-
     // getting user from reduxStore 
     const loginUser = useSelector((state )=> state.authState)
     let {status, userInfo, error} = loginUser
     
-    // getting user from localStorage
-//    const user = isAuthenticated()
-//      useLayoutEffect(() => {
-//          const jwt = isAuthenticated().then((value) => {
 
-//              if (value?.token ) {
-//                  navigation.replace('Main')
-//                 } 
-//             }
-//             ) 
-
-//     }, [])
-
+    
+        
     useEffect(() => {
        const getWorkers = async() => {
            const res = await instance.get('/workers/');
-           setWorkerList(res.data)
-           console.log(workerList)
+
+           
+        //    sort user out of patientsList
+       let workers =  res.data.filter(item => item._id != userInfo.user.id)
+           setWorkerList(workers)
        }
         getWorkers();
 
     //    listing patients
         const getPatients = async() => {
            const res = await instance.get('/patients/');
-           setPatientsList(res.data)
+        
+        //    sort user out of patientsList
+       let patients =  res.data.filter(item => item._id != userInfo.user.id)
+           setPatientsList(patients)
+           
        }
         getPatients();
     }, [])
@@ -57,39 +52,30 @@ const Chats = ({navigation}) => {
 
     return (
         <View>
-            { (!userInfo?.bmi )? (
-            <>
-
-                
-                <View>
+              <View style={{marginLeft:10,marginTop:10}}>
                     <Text>Patients :</Text>
                     <ScrollView>
-                        {patientsList.map(({_id, name, surname}) => {
-
-                            <TouchableOpacity key={_id} onPress={handleToChat}>
-
-                                <UserListItem enterChat={enterChat} key={_id} name={name} surname={surname} id={_id}  />
-                            </TouchableOpacity>
-                        })}
+                        {patientsList.map((patient) => 
+                            <UserListItem key={patient._id} enterChat={enterChat} name={patient.name} surname={patient.surname} id={patient._id}  />
+                        )}
                             
 
                     </ScrollView>
 
-                    <View style={{marginTop:20}}>
+                    <View style={{marginTop:20,marginLeft:10}}>
                         <Text>HealthWorkers :</Text>
                         <ScrollView>
                             {workerList.map(({_id, name, surname }) => (
-                                <UserListItem enterChat={enterChat} key={id} name={name} surname={surname} id={id}  />
+                                <UserListItem enterChat={enterChat} key={_id} name={name} surname={surname} id={_id}  />
                             ))}
                             
 
                         </ScrollView>
                     </View>
                 </View>
-            </>
-        
-        ) : (
-        <View>
+            
+        {/* ) : ( */}
+        {/* <View>
             <Text>HealthWorkers :</Text>
             <ScrollView>
                 {workerList.map(({_id, name, surname }) => (
@@ -98,9 +84,9 @@ const Chats = ({navigation}) => {
                 </TouchableOpacity>
                 ))}
             </ScrollView>
-        </View>
+        </View> */}
 
-        )}
+        {/* )} */}
         </View>
     )
 }

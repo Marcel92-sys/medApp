@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import Dashboard from '../Screens/Dashboard';
@@ -9,9 +9,23 @@ import Rpatient from '../Screens/Rpatient';
 import Logs from '../Screens/Logs';
 import Pfile from '../Screens/Pfile';
 import EncounterNote from '../Screens/EncounterNote';
+import socket from '../helpers/socket';
 
 const InnerNav = () => {
 
+
+    // socket.io
+    useEffect(() => {
+        socket.connect();
+        socket.on("connect_error", (err) => {
+            if (err.message === "invalid name"){
+            }
+        })
+        function destroyed() {
+
+        socket.off("connect_error")
+        }
+    }, []);
     
 const Stack = createStackNavigator();
 

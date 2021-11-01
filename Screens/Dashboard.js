@@ -2,8 +2,10 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Charts from '../components/Charts';
-import Search from '../components/Search';
+// import { getPatient } from '../helpers/apiCalls';
+// import Search from '../components/Search';
 import { clearJWT, isAuthenticated } from '../helpers/authHelpers';
+// import { getPatient } from '../redux/userDetails/patientDetailsSlice';
 
 // import { ScreenWidth } from 'react-native-elements/dist/helpers';
 
@@ -20,8 +22,8 @@ const Dashboard = ({navigation}) => {
     const dispatch = useDispatch()
 
     // accessing user state
-    const loginUser = useSelector((state )=> state.authState)
-    const {userInfo, status, error} = loginUser
+    const loggedInUser = useSelector((state )=> state.authState)
+    const {userInfo, status, error} = loggedInUser
 
     const patients = useSelector((state )=> state.patientsList)
     const {patientsList} = patients
@@ -29,15 +31,19 @@ const Dashboard = ({navigation}) => {
     
     
     // useEffect(() =>{
-    //   const jwt = ( ) => {  isAuthenticated()
-    //     .then(value => setUserInfo( value))
-    //     .catch(e => console.log("error", e))
-    //   }
-    //     jwt()
+    //   dispatch(getPatient())
     
     // },[])
+
+    // useEffect(() => {
+    //         const logOut = () => {
+    //             !userInfo && navigation.replace('SignIn')
+    //         }
+
+    //      logOut();
+    // },[])
     
-    console.log("login user store state", loginUser)
+    console.log("login user store state", loggedInUser)
     // accessing malePatients 
 
     const handleLogOut = ()=> {
@@ -48,7 +54,6 @@ const Dashboard = ({navigation}) => {
 
     useLayoutEffect(() =>{
         navigation.setOptions({
-            title: "Ok_Medical",
             // headerStyle: {backgroundColor:"white"},
             headerTitleStyle:{color:'white'},
             headerTintColor:'white',
@@ -68,7 +73,7 @@ const Dashboard = ({navigation}) => {
                 <Text  >Hello 
                     {userInfo ?
                     <Text style={{fontWeight:'bold'}}>
-                        {''} {userInfo?.name}{' '}{userInfo?.surname}
+                        {''} {userInfo.user?.name}{' '}{userInfo.user?.surname}
                     </Text>
 
                     : "User"
@@ -85,11 +90,11 @@ const Dashboard = ({navigation}) => {
                     /> */}
                 {/* </View> */}
                 {/* <View style={{ }}> */}
-                    <Search />   
+                    {/* <Search />    */}
                 {/* </View> */}
 
                 <View style={{ marginTop:10}}  >
-                        {   (!userInfo?.bmi ) ? 
+                        {   (!userInfo.user?.bmi ) ? 
                     ( 
                     <>
                         <View style={{marginBottom:15, flexDirection:'row'}} >
@@ -114,14 +119,14 @@ const Dashboard = ({navigation}) => {
                         (
                     <View style={{flexDirection:'row', justifyContent:'space-between',marginHorizontal:5}} >
                         <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Chats')}>
-                            <Text style={styles.text}>Chat a Patient</Text>
+                            <Text style={styles.text}>Go to Chats </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Pfile')}>
                             <Text style={styles.text}>View File</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Chats')}>
+                        {/* <TouchableOpacity style={styles.button} onPress={()=> navigation.navigate('Chats')}>
                             <Text style={styles.text}>Chat a HealthWorker</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>)
                         } 
                 </View>

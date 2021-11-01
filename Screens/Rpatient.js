@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import { StyleSheet,ScrollView,TouchableOpacity, Text, View,KeyboardAvoidingView  } from 'react-native'
-import { Button,Input } from 'react-native-elements';
+import { StyleSheet,Button,ScrollView,TouchableOpacity, Text, View,KeyboardAvoidingView  } from 'react-native'
+import { Input } from 'react-native-elements';
 import {Picker} from '@react-native-picker/picker';
 import AppCamera from '../components/AppCamera';
 import { Modal } from 'react-native';
 import instance from '../helpers/axios';
+import Notificator from '../components/Notificator';
 // import CameraComponent from '../components/CameraComponent';
 
 
@@ -25,8 +26,14 @@ const Rpatient = ({navigation}) => {
 
     const [message, setMessage] =useState(null)
 
+    
+   const [openNotificator, setOpenNotificator] = useState(false)
+
+   const closeNotifier = () => setOpenNotificator(!openNotificator)
+
+
 const handleImage = () => {
-setIUri(true)
+setIUri(!iUri)
 }
 
 let details = {
@@ -39,16 +46,24 @@ let details = {
 const handleRegister = async() => {
     
     const res = await instance.post('patients/signup', details)
-        setMessage(res)
+    
+    setOpenNotificator(true)
+        setMessage(res.data)
 }
 
+
+      const scrollBehavior = Platform.OS === "ios" ? "padding" : "height"
+
     return (
-        < KeyboardAvoidingView  style={styles.container}>
+        < KeyboardAvoidingView behavior={scrollBehavior} style={styles.container}>
             
             <View style={{padding: 10,width:"100%",borderRadius:5,backgroundColor: '#3EB489',}}>
-                { message && 
-                    <Text style={{width:"70%", color:"green"}}>{message}</Text>
-                }
+                { message ? 
+                    // <Text style={{width:"70%", color:"green"}}>{message}</Text>
+                    <Notificator message={message} closeNotifier={closeNotifier} />
+                    :
+                    
+                
                 <ScrollView showsVerticalScrollIndicator={false} >
                         <Text>New Patient Registeration Form</Text>
                         <Input
@@ -107,7 +122,7 @@ const handleRegister = async() => {
                         prompt="Gender"
                         onValueChange={(itemValue, itemIndex) => 
                             setGender(itemValue)}
-                        >
+                            >
                             <Picker.Item label='' value='' />
                             <Picker.Item label='Male' value='male' />
                             <Picker.Item label='female' value='female' />
@@ -119,17 +134,17 @@ const handleRegister = async() => {
                         labelStyle={styles.label}
                         label="Height"
                         // style={{height: 40,borderColor:'black', borderWidth:0.5}}
-                        placeholder="Enter height"
+                        placeholder="Enter height in numbers"
                         onChangeText={(text) => setHeight(text)}
                         value={height}
-                    />
+                        />
                     
                     <Input
                         inputStyle={styles.input}
                         labelStyle={styles.label}
                         label="Weight"
                         // style={{height: 40,borderColor:'black', borderWidth:0.5}}
-                        placeholder="Enter weight"
+                        placeholder="Enter weight in numbers"
                         onChangeText={(text) => setWeight(text)}
                         value={weight}
                         />
@@ -163,18 +178,24 @@ const handleRegister = async() => {
                         onChangeText={(text) => setState(text)}
                         value={state}
                         />
-                    <Button  style={{width:50}} onPress={handleImage} title="Add Picture" />
+                    {/* <View   style={{width:"50%",marginBottom:10, alignSelf:'center'}}>
+
+                    <Button color="red"  onPress={handleImage} title={iUri? "Close Camera":"Add Picture"} />
+                    </View>
                     {iUri &&
-                        <View style={{height:'40%', width:'70%'}}>
+                        <View style={{height:'40%', width:'70%',alignSelf:'center'}}>
                             <AppCamera photo={photo} setPhoto={setPhoto} /> 
                         </View>
-                    }
+                    } */}
+                <Button containerStyle={{marginVertical:20}} title='Register' 
+                    onPress={ handleRegister}
+                    disabled={!state} 
+                />
                 </ScrollView> 
-                <Button containerStyle={{marginVertical:20}} title='Register' onPress={
-                    handleRegister
-                } />
-            </View>
-        </KeyboardAvoidingView >
+                
+                }
+                </View>
+                </KeyboardAvoidingView >
     )
 }
 
@@ -182,11 +203,11 @@ export default Rpatient
 
 const styles = StyleSheet.create({
     container: {
-    flex: 1,
-    alignItems: 'center',
-    margin:10,
-    // justifyContent: 'center'
-  },
+        flex: 1,
+        alignItems: 'center',
+        margin:10,
+        // justifyContent: 'center'
+    },
     input: {width:'100%',color:'white'},
     label:{color:'white',width:'100%'},
    

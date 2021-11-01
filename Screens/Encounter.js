@@ -3,14 +3,14 @@ import React,{useState, useEffect} from 'react'
 import { StyleSheet,TextInput, Text, View,KeyboardAvoidingView,ScrollView, Modal  } from 'react-native'
 import { Button,Input } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
+import Notificator from '../components/Notificator';
 import instance from '../helpers/axios';
 import socket from '../helpers/socket';
 import { getPatients } from '../redux/patients/patientsListSlice';
 
 const Encounter = ({navigation}) => {
-    const [eFor, setEFor] = useState('Marcel')
+    const [eFor, setEFor] = useState('User')
     const [visitType, setVisitType] = useState('First Time Visit')
-    const [eBy, setEBy] = useState('')
     const [height, setHeight] = useState('')
     const [weight, setWeight] = useState('')
     // const [bmi, setBmi] = useState(0)
@@ -22,8 +22,15 @@ const Encounter = ({navigation}) => {
    const [treatPlan, setTreatPlan] = useState('')
 
    const [showModal, setShowModal] = useState(false)
+    const [values, setvalues] = useState({
+        error:null,
+        success:null
+    })
 
-   const [listedPatients, setListedPatients] = useState([])
+
+   const [openNotificator, setOpenNotificator] = useState(false)
+
+   const closeNotifier = () => setOpenNotificator(!openNotificator)
 
    const dispatch = useDispatch();
    const worker = useSelector(state => state.authState)
@@ -31,18 +38,23 @@ const Encounter = ({navigation}) => {
 
    
 //    get all Patients
-
 useEffect(() => {
     dispatch(getPatients())
 },[])
       const patients = useSelector(state => state.patientsList)
       let {patientsList} = patients
-    console.log("patientsList", patientsList)
+    // console.log("patientsList", patientsList)
     // handling saving of Encounter file
   
     const handleSave = async (e) => {
        e.preventDefault();
-    //    const res = await instance.patch(`/${user?._id}/encounter/${}`)
+       const res = await instance.patch(`/workers/${userInfo.user?.id}/encounter/${eFor}`, encounter)
+        // console.log("response after Encounter posting:", res)
+        if (res.data) {
+            setvalues({...values, success:res.data})
+            setOpenNotificator(true)
+        }
+        // setvalues({...values, error:})
 
       
     }
@@ -73,16 +85,21 @@ useEffect(() => {
         socket.emit("send-encounter", encounter)
     }
    
+    
+      const scrollBehavior = Platform.OS === "ios" ? "padding" : "height"
     return (
-        <KeyboardAvoidingView style={styles.container}>
+        <KeyboardAvoidingView style={styles.container} behavior={scrollBehavior}>
+                
             <Text style={{fontWeight:'bold', color:'#3EB489'}}>Encounter Form for <Text>{eFor}</Text></Text>
+            
+          { !openNotificator ?
              <ScrollView style={{padding: 10,width:'85%',backgroundColor: '#3EB489', borderRadius:5}}>
                  <View>
                     <Text style={styles.text}>Patient name</Text>
                        <Picker style={styles.input} selectedValue={eFor} onValueChange={(itemValue, itemIndex) => setEFor(itemValue)} >
                            <Picker.Item  label='Select a patient' value={null} />
                             {patientsList.map((patient, i)=>
-                            <Picker.Item key={i} label={patient.name +" "+ patient.surname} value={patient.name +" "+ patient.surname} />
+                            <Picker.Item key={i} label={patient.name +" "+ patient.surname} value={patient._id} />
                             )}
                         </Picker>
                 </View>
@@ -101,9 +118,9 @@ useEffect(() => {
                     <TextInput
                         style={styles.input}
                         // style={{height: 40,borderColor:'black', borderWidth:0.5}}
-                        placeholder="Enter height"
+                        placeholder="Enter height in numbers"
                         onChangeText={(text) => setHeight(text)}
-                        value={height}
+                        value={height.toString()}
                     />  
                 </View>
                 <View>
@@ -111,26 +128,11 @@ useEffect(() => {
                     <TextInput
                         style={styles.input}
                         // style={{height: 40,borderColor:'black', borderWidth:0.5}}
-                        placeholder="Enter weight"
+                        placeholder="Enter weight in numbers"
                         onChangeText={(text) => setWeight(text)}
                         value={weight}
                     />
                </View>
-               
-               <View>
-                   <Text style={styles.text}>BMI :</Text>
-                    {/* <Text style={styles.input}>{bmi}</Text> */}
-                    
-                    <TextInput
-                        style={styles.input}
-                        // style={{height: 40,borderColor:'black', borderWidth:0.5}}
-                        placeholder="Enter bmi"
-                        // onChangeText={() => setBmi(weight/height)}
-                        value={bmi}
-                    />
-               </View>
-                
-                
                 
                <View>
                    <Text style={styles.text}>Temperature :</Text>
@@ -177,8 +179,6 @@ useEffect(() => {
                         value={complaints}
                     />
                </View>
-               
-               
                <View>
                    <Text style={styles.text}>Diagnosis :</Text>
                     <Picker style={styles.input} selectedValue={diagnosis} onValueChange={(itemValue, itemIndex) => setDiagnosis(itemValue)} >
@@ -205,20 +205,29 @@ useEffect(() => {
                </View>
                
                  <View>
-                    <Text style={styles.text}>Encounter By: {userInfo?.name}</Text>
+                    <Text style={styles.text}>Encounter By: {userInfo.user?.id}</Text>
                 
                     
                </View>
               
-                <View style={{flexDirection:'row', marginTop:2, justifyContent:'space-around'}}>
-                <Button title='Save' onPress={handleSave} />
-                <Button title='Send' type={'outline'} onPress={handleSend} />
-
+                <View style={{flexDirection:'row', marginTop:12,marginBottom:30, justifyContent:'space-around'}}>
+                    <Button 
+                    title='Save'
+                    // disabled={!treatPlan || values.error || values.success}
+                    onPress={handleSave} />
+                    <Button title='Send' type={'outline'} onPress={handleSend} />
                 </View>
+                <View style={{height:100}} />
             </ScrollView>
 
-               
-
+            
+          : 
+          <Notificator 
+            closeNotifier={closeNotifier} 
+            message={values.success} 
+            error={values.error}
+            />
+            }
             
         </KeyboardAvoidingView>
     )

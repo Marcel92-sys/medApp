@@ -3,12 +3,15 @@ import { TouchableOpacity } from 'react-native'
 import { ScrollView } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 import { useSelector } from 'react-redux'
+import EncounterItem from '../components/EncounterItem'
 import { getEncountersByMe } from '../helpers/apiCalls'
 
 const Logs = ({navigation}) => {
 
     const [note, setNote] = useState(false)
     const launchEncounter = () => setNote(true);
+    
+    const [file, setFile] = useState([])
 
     const loginUser = useSelector((state )=> state.authState)
     const {userInfo, status, error} = loginUser
@@ -26,7 +29,10 @@ const Logs = ({navigation}) => {
 
     useEffect(() => {
         const getEncounters = () =>{
-            getEncountersByMe({wkId: userInfo.id}).then
+            getEncountersByMe({wkId: userInfo?.user?.id}).then(result => {
+                console.log("resutl:", result)
+                setFile(result)
+            })
         }
         getEncounters()
     }, [userInfo])
@@ -37,32 +43,27 @@ const Logs = ({navigation}) => {
                 <>  
                 <View style={{flexDirection:'row', justifyContent:'space-between', marginTop:10,marginHorizontal:10,backgroundColor:'#3EB489'}}>
                     <View>
-                        
                         <Text style={styles.tableHead}>Created E-Files</Text>
-                        {/* <ScrollView> */}
-                            <TouchableOpacity>
-                                <Text>Mbaekwe Laraba</Text>
-                            </TouchableOpacity>
-                        {/* </ScrollView> */}
+                        <Text>{file.length}</Text>
                     </View>
                     <View >
                         <Text style={styles.tableHead}>Recieved E-Files</Text>
-                        {/* <ScrollView> */}
                             <TouchableOpacity>
-
                             <Text>Chioma Eze</Text>
                             </TouchableOpacity>
-                        {/* </ScrollView> */}
                     </View>
 
                 </View>
-                <View style={{marginTop:20, alignSelf:'center'}}>
-                    <Text>Encounters By Me</Text>
+                <View style={{marginTop:20, justifyContent:'center', alignItems:'center'}}>
+                    <Text style={styles.tableHead}>Encounters By Me</Text>
                     <ScrollView>
                         
-                        <TouchableOpacity onPress={launchEncounter}>
+                        {/* <TouchableOpacity onPress={launchEncounter}>
                             <Text >first encounter</Text>
-                        </TouchableOpacity>      
+                        </TouchableOpacity>       */}
+                         {file?.map((item) => 
+                     <EncounterItem key={item._id} item={item}  />
+                 )} 
                     </ScrollView>
                 </View>
             </>
@@ -74,7 +75,7 @@ const Logs = ({navigation}) => {
                 </TouchableOpacity>
                 
                 <TouchableOpacity onPress={()=> handleToEncounter({encounter:"first"})}>
-                    <Text  >GO</Text>
+                    <Text >GO</Text>
                 </TouchableOpacity>
                 </View>
             }

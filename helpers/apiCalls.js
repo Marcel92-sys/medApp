@@ -64,6 +64,22 @@ export const getPatient = async(params) => {
 
 }
 
+
+export const getPatientFile = async(params) => {
+    try {
+        let response = await fetch(baseUrl +'/patients/encounters/' + params.patId, {
+            method: 'GET',
+            // signal:signal
+        })
+        return await response.json()
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+
 export const getWorkers = async(signal) => {
     try {
         let response = await fetch(baseUrl +'/workers', {
@@ -104,3 +120,14 @@ export const sortPatients = async(signal) => {
 
 }
 
+export const getMessagesByMe = async(params) => {
+    try {
+        let response = await fetch(baseUrl +'/messages/' + params.userId + "/" + params.receiverId, {
+            method: 'GET',
+        })
+        return await response.json()
+    } catch (error) {
+        console.log(error)
+    }
+
+}

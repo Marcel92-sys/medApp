@@ -26,44 +26,42 @@ export default function AppCamera({photo, setPhoto}) {
   const snap = async() => {
     if(camera) {
          data = await camera.takePictureAsync();
+         console.log("data", data.uri)
         setPhoto(data.uri)
     }
   }
 
+  const handleFlip = () => {
+            setType(
+            type === Camera.Constants.Type.back
+                ? Camera.Constants.Type.front
+                : Camera.Constants.Type.back
+            );
+                            }
+
   const handleNewImage = () => {
-    setPhoto('')
+    setPhoto(null)
   }
   return (
     <View style={styles.container}>
         
               <View 
-            style={{height:"40%",width:'70%'}}>       
+                style={{height:"40%",width:'70%'}}>       
                  <Camera style={{aspectRatio:1}} type={type} 
                   ref={(ref) =>setCamera(ref) } 
                   
                 >
-                    <View style={styles.buttonContainer}>
+                    <View style={{justifyContent:'space-between', backgroundColor:'green'}}>
                         <TouchableOpacity
-                            onPress={() => {
-                                setType(
-                                type === Camera.Constants.Type.back
-                                    ? Camera.Constants.Type.front
-                                    : Camera.Constants.Type.back
-                                );
-                            }}>
-                            <Text style={styles.text}>FLIPE </Text>
+                            onPress={handleFlip}>
+                            <Text style={styles.text}>FLIP</Text>
                         </TouchableOpacity>
 
-                    </View>
-                    <View>
-
+                    
                         <TouchableOpacity onPress={snap} style={{position:'absolute',left:"40%",bottom:0,alignItems:'center'}}>
                             <Text style={styles.text}>SNAP</Text>
                         </TouchableOpacity>
-                    </View>
                     
-                    <View>
-
                         <TouchableOpacity onPress={handleNewImage} style={{position:'absolute',right:"0%",bottom:0,alignItems:'flex-end'}}>
                             <Text style={styles.text}>NEW </Text>
                         </TouchableOpacity>

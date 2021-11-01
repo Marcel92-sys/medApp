@@ -9,7 +9,6 @@ const initialState = {
 
     export const getPatients = createAsyncThunk('patients/getPatients', async() => {
        const res = await instance.get('/patients/')
-       console.log("patientsList at slice", res.data)
         return res.data
     })
 

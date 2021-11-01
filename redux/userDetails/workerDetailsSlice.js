@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { baseUrl } from "../../helpers/apiCalls";
-import { authenticate } from "../../helpers/authHelpers";
 
 const initialState = {
        userInfo:"",
@@ -9,34 +8,33 @@ const initialState = {
         error: null
     }
 
-export const loginUser = createAsyncThunk('auth/loginUser', async(userDetails) => {
-    const res = await axios.post(baseUrl+'/login', userDetails)
-     authenticate(res.data)
+export const getWorker = createAsyncThunk('userDetails/worker', async(userDetails) => {
+    const res = await axios.get(baseUrl+'/workers/'+workerId)
     return res.data
 })
 
-export const authSlice = createSlice({
-    name:'auth',
+export const workerSlice = createSlice({
+    name:'worker',
     initialState,
     reducers: {},
     extraReducers: {
-        [loginUser.pending]: (state, action) => {
+        [getWorker.pending]: (state, action) => {
             state.status = 'loading'
         },
-        [loginUser.fulfilled]: (state, action) => {
+        [getWorker.fulfilled]: (state, action) => {
             state.status = 'succeeded'
             state.userInfo = action.payload
         },
 
-        [loginUser.rejected]: (state, action) => {
+        [getWorker.rejected]: (state, action) => {
             state.status = 'failed'
             state.error = action.error
         }
     }
 })
 
-const authReducer  = authSlice.reducer
+const workerReducer  = workerSlice.reducer
 
 
 
-export default authReducer
+export default workerReducer

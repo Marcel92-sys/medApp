@@ -1,14 +1,13 @@
 import React, {useEffect, useLayoutEffect, useState} from 'react'
-import { StyleSheet, KeyboardAvoidingView, View } from 'react-native'
+import { StyleSheet, KeyboardAvoidingView, View,Alert } from 'react-native'
 import { Button,Text,Input } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
-import { StackActions,Link, NavigationContainer } from '@react-navigation/native'
-import socket from '../helpers/socket';
+import { StackActions,Link, NavigationContainer } from '@react-navigation/native';
 import { loginUser } from '../redux/auth/authSlice';
-// import { io } from 'socket.io-client';
-import {login} from '../helpers/apiCalls'
 import { isAuthenticated } from '../helpers/authHelpers';
 import { getPatients } from '../redux/patients/patientsListSlice';
+import { getPatient } from '../redux/userDetails/patientDetailsSlice';
+import { getWorker } from '../redux/userDetails/workerDetailsSlice';
 const SignIn = ({navigation}) => {
     const [surname, setSurname] = useState('')
     const [password, setPassword] = useState('')
@@ -24,23 +23,9 @@ const SignIn = ({navigation}) => {
     // const loggedInUser = useSelector(state => state.authState)
     // const {userInfo, status, error} = loggedInUser
 
-    // socket.io
-    useEffect(() => {
-        socket.connect();
-        socket.on("connect_error", (err) => {
-            if (err.message === "invalid name"){
-            }
-        })
-        function destroyed() {
-
-        socket.off("connect_error")
-        }
-    }, []);
-
     // handleing userState to either redirect to dashboard
     useLayoutEffect(() => {
          const jwt = isAuthenticated().then(value => {
-            console.log("userToken state",value)
              if (value) {
                  navigation.replace('InnerNav')
                 } 
@@ -54,6 +39,7 @@ const SignIn = ({navigation}) => {
         // }
 
         // searchingUser()
+
 
     }, [])
 
@@ -71,11 +57,10 @@ const SignIn = ({navigation}) => {
     const handleLogin = (e) => {
         e.preventDefault()
         dispatch(loginUser(userData))
-        
             .then((data) => {
-                console.log(data, "from authSlice")
+                console.log("login data:", data)
             if (data.error){
-                setValues({...values, error:data.error})
+                setValues({...values, error:data.error.message})
             } else {
                 setValues({...values})
                 dispatch(getPatients())
@@ -92,6 +77,14 @@ const SignIn = ({navigation}) => {
         <KeyboardAvoidingView behavior={scrollBehavior} style={styles.container}> 
             <View  style={{backgroundColor:'#3EB489', paddingVertical:20,marginBottom:30, borderRadius:5, width:'80%'}}  >
                 <Text  h4  style={{padding:10, alignSelf:'center', color:'white'}}>Login to your Account</Text>
+                
+                    { values.error ?
+                    <View>
+                        <Text style={styles.error} >{values.error}</Text>
+                    </View>
+                    : null
+                    }
+                
                 <Input
                     label = "Surname"
                     // style={{height: 40,borderColor:'black', borderWidth:0.5}}
@@ -109,7 +102,7 @@ const SignIn = ({navigation}) => {
                 />
 
                 <Button title='Login'  
-                    // disabled={!surname || !password } 
+                    disabled={!surname || !password } 
                     containerStyle={styles.button} 
                     onPress={handleLogin} 
                 />
@@ -142,5 +135,19 @@ const styles = StyleSheet.create({
   button:{
             width:"50%", alignSelf:'center'
         },
+    error: {
+        fontWeight:'bold',
+        color:'red',
+        borderColor:'red',
+        borderWidth:1.5,
+        backgroundColor:'white',
+        borderRadius:3,
+        padding: 10,
+        marginBottom:10,
+        alignSelf:'center',
+        width:'50%'
+
+    }
+
 
     })
